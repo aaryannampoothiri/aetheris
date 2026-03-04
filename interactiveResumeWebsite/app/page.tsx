@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Image from "next/image";
 
 type Skill = {
   name: string;
@@ -55,10 +56,16 @@ const experience = [
   },
 ];
 
+const knownLanguages = ["Java", "Python", "C++"];
+
+const spokenLanguages = ["English", "Malayalam", "Hindi", "Tamil"];
+
 export default function Home() {
   const categories = Object.keys(skillMap);
   const [activeCategory, setActiveCategory] = useState(categories[0]);
   const [selectedProjectIndex, setSelectedProjectIndex] = useState(0);
+  const [photoError, setPhotoError] = useState(false);
+  const [bannerError, setBannerError] = useState(false);
 
   const selectedSkills = useMemo(
     () => skillMap[activeCategory],
@@ -72,11 +79,14 @@ export default function Home() {
       <header className="sticky top-0 z-20 border-b border-zinc-800 bg-zinc-950/90 backdrop-blur">
         <nav className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-4">
           <p className="text-sm font-semibold tracking-wide text-zinc-300">
-            Aaryan Nampoothiri A · Interactive Resume
+            Aaryan Nampoothiri A
           </p>
           <div className="hidden items-center gap-5 text-sm text-zinc-300 md:flex">
             <a href="#about" className="transition hover:text-white">
               About
+            </a>
+            <a href="#languages" className="transition hover:text-white">
+              Languages
             </a>
             <a href="#skills" className="transition hover:text-white">
               Skills
@@ -95,18 +105,55 @@ export default function Home() {
       </header>
 
       <main className="mx-auto flex w-full max-w-6xl flex-col gap-16 px-6 py-12 md:py-16">
-        <section id="about" className="grid gap-8 md:grid-cols-[2fr_1fr] md:items-end">
+        <section id="about" className="flex flex-col gap-8">
+          <div className="flex items-center gap-3">
+            <div className="relative flex-1 overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900 h-48 md:h-56">
+              {!bannerError ? (
+                <Image
+                  src="/banner.png"
+                  alt="Aaryan banner"
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 768px) calc(100vw - 250px), calc(100vw - 350px)"
+                  onError={() => setBannerError(true)}
+                  priority
+                />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center text-center text-sm font-medium uppercase tracking-wide text-zinc-400">
+                  Add banner.png
+                </div>
+              )}
+            </div>
+
+            <div className="relative h-48 w-48 overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900 md:h-56 md:w-56 flex-shrink-0">
+              {!photoError ? (
+                <Image
+                  src="/profile.jpg"
+                  alt="Aaryan Nampoothiri A"
+                  fill
+                  className="object-cover"
+                  sizes="(min-width: 768px) 224px, 192px"
+                  onError={() => setPhotoError(true)}
+                  priority
+                />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center text-center text-xs font-medium uppercase tracking-wide text-zinc-400">
+                  Add profile.jpg
+                </div>
+              )}
+            </div>
+          </div>
+
           <div className="space-y-6">
             <p className="text-sm font-medium uppercase tracking-[0.2em] text-zinc-400">
               Student · CSE (Cybersecurity)
             </p>
-            <h1 className="text-4xl font-bold leading-tight text-white md:text-6xl">
+            <h1 className="text-3xl font-bold leading-tight text-white md:text-4xl">
+              Aaryan Nampoothiri A
+            </h1>
+            <p className="max-w-2xl text-sm leading-relaxed text-zinc-300 md:text-base">
               Aspiring cybersecurity-focused engineer with a passion for secure
               and practical software systems.
-            </h1>
-            <p className="max-w-2xl text-base leading-relaxed text-zinc-300 md:text-lg">
-              UG Student at Vellore Institute of Technology mastering Computer
-              Science and Engineering with Cybersecurity as specialization.
             </p>
             <div className="flex flex-wrap gap-3">
               <a
@@ -114,6 +161,14 @@ export default function Home() {
                 className="rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-zinc-900 transition hover:bg-zinc-200"
               >
                 Explore Projects
+              </a>
+              <a
+                href="/cv.pdf"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="rounded-full border border-zinc-700 px-5 py-2.5 text-sm font-semibold text-zinc-200 transition hover:border-zinc-500 hover:text-white"
+              >
+                View CV
               </a>
               <a
                 href="#contact"
@@ -142,6 +197,38 @@ export default function Home() {
                 </p>
               </div>
             ))}
+            </div>
+        </section>
+
+        <section id="languages" className="space-y-5">
+          <h2 className="text-2xl font-semibold text-white">Languages I Know</h2>
+          <div className="space-y-4">
+            <div>
+              <p className="mb-3 text-sm font-medium text-zinc-400">Programming</p>
+              <div className="flex flex-wrap gap-2 rounded-2xl border border-zinc-800 bg-zinc-900/60 p-5">
+                {knownLanguages.map((language) => (
+                  <span
+                    key={language}
+                    className="rounded-full bg-zinc-800 px-3 py-1 text-xs font-medium text-zinc-200"
+                  >
+                    {language}
+                  </span>
+                ))}
+              </div>
+            </div>
+            <div>
+              <p className="mb-3 text-sm font-medium text-zinc-400">Spoken</p>
+              <div className="flex flex-wrap gap-2 rounded-2xl border border-zinc-800 bg-zinc-900/60 p-5">
+                {spokenLanguages.map((language) => (
+                  <span
+                    key={language}
+                    className="rounded-full bg-zinc-800 px-3 py-1 text-xs font-medium text-zinc-200"
+                  >
+                    {language}
+                  </span>
+                ))}
+              </div>
+            </div>
           </div>
         </section>
 
@@ -293,6 +380,12 @@ export default function Home() {
           </p>
           <div className="mt-5 flex flex-wrap gap-3 text-sm">
             <a
+              href="tel:8078404468"
+              className="rounded-full bg-white px-4 py-2 font-semibold text-zinc-900 transition hover:bg-zinc-200"
+            >
+              8078404468
+            </a>
+            <a
               href="mailto:aaryannamboothiri@gmail.com"
               className="rounded-full bg-white px-4 py-2 font-semibold text-zinc-900 transition hover:bg-zinc-200"
             >
@@ -313,6 +406,14 @@ export default function Home() {
               className="rounded-full border border-zinc-700 px-4 py-2 font-semibold text-zinc-200 transition hover:border-zinc-500"
             >
               GitHub
+            </a>
+            <a
+              href="/cv.pdf"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="rounded-full border border-zinc-700 px-4 py-2 font-semibold text-zinc-200 transition hover:border-zinc-500"
+            >
+              Download CV
             </a>
           </div>
         </section>
