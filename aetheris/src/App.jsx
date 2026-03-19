@@ -18,7 +18,7 @@ const GS = () => (
       --serif:'Playfair Display',Georgia,serif;
       --sans:'Jost',sans-serif;
     }
-    html,body{background:var(--bg);color:var(--text);font-family:var(--sans);font-weight:300;overflow-x:hidden;min-height:100vh}
+    html,body{background:var(--bg);color:var(--text);font-family:var(--sans);font-weight:300;overflow-x:hidden;min-height:100vh;-webkit-text-size-adjust:100%}
     ::-webkit-scrollbar{width:2px}
     ::-webkit-scrollbar-track{background:transparent}
     ::-webkit-scrollbar-thumb{background:rgba(0,212,255,0.15);border-radius:2px}
@@ -98,8 +98,45 @@ const GS = () => (
       animation:heroSub .6s cubic-bezier(.23,1,.32,1) .18s both;
     }
 
+
+    @media(max-width:768px){
+      /* Hero: stack text above sphere */
+      .hero-grid > div:first-child{order:1}
+      .hero-grid > div:last-child{order:0;display:flex;justify-content:center;padding-top:90px}
+      /* Shrink hero title on mobile */
+      .hero-grid h1{font-size:clamp(52px,14vw,80px)!important}
+      /* Feature sections: text first, visual second */
+      .feature-grid{flex-direction:column;text-align:center;gap:28px!important}
+      .feature-grid > div:first-child{text-align:left}
+      /* Reduce page hero min-height */
+      .page-hero-title{font-size:clamp(40px,10vw,72px)!important}
+      /* Calendar: smaller cells */
+      .cc{min-height:52px!important;padding:4px!important}
+      /* Task row: hide heat bar on very small */
+    }
+    @media(max-width:480px){
+      .page-content{padding:0 14px 60px!important}
+      .hero-grid{gap:16px!important}
+    }
     /* ── Calendar cell ── */
     .cc:hover{background:rgba(255,255,255,0.013)!important}
+
+    /* ── Mobile responsive ── */
+    @media(max-width:768px){
+      .nav-items{gap:0!important;flex-wrap:wrap;justify-content:center}
+      .nav-btn{padding:6px 10px!important;font-size:11px!important}
+      .page-content{padding:0 18px 60px!important}
+      .hero-grid{grid-template-columns:1fr!important;gap:0!important;padding:0 20px!important}
+      .feature-grid{grid-template-columns:1fr!important;gap:32px!important;padding:0 20px!important;height:auto!important;min-height:100vh}
+      .wellness-grid{grid-template-columns:1fr!important;gap:32px!important}
+      .stats-grid{grid-template-columns:1fr!important;gap:32px!important}
+      .credits-row{flex-direction:column!important;align-items:flex-start!important;gap:20px!important}
+      .credits-links{flex-wrap:wrap!important}
+      .calendar-hint{display:none}
+    }
+    @media(max-width:480px){
+      .nav-btn{padding:5px 8px!important;font-size:10px!important}
+    }
   `}</style>
 );
 
@@ -126,11 +163,11 @@ function Nav({active,go}){
   useEffect(()=>{const h=()=>setScrolled(window.scrollY>30);window.addEventListener("scroll",h,{passive:true});return()=>window.removeEventListener("scroll",h)},[]);
   return(
     <nav className="navglass" style={{position:"fixed",top:0,left:"50%",transform:"translateX(-50%)",zIndex:300,width:"auto",maxWidth:"calc(100% - 32px)",padding:"10px 6px 14px",display:"flex",alignItems:"center",justifyContent:"center",transition:"all .4s ease"}}>
-      <div style={{display:"flex",gap:0,alignItems:"center"}}>
+      <div className="nav-items" style={{display:"flex",gap:0,alignItems:"center",flexWrap:"wrap",justifyContent:"center"}}>
         {NAV.map(n=>{
           const on=active===n.id;
           return(
-            <button key={n.id} onClick={()=>go(n.id)} style={{background:"none",border:"none",cursor:"pointer",padding:"6px 18px",color:on?"#00d4ff":"rgba(180,195,220,0.38)",fontSize:12,fontWeight:on?400:300,fontFamily:"var(--sans)",letterSpacing:on?".08em":".05em",position:"relative",transition:"color .25s ease"}}>
+            <button key={n.id} onClick={()=>go(n.id)} className="nav-btn" style={{background:"none",border:"none",cursor:"pointer",padding:"6px 14px",color:on?"#00d4ff":"rgba(180,195,220,0.38)",fontSize:12,fontWeight:on?400:300,fontFamily:"var(--sans)",letterSpacing:on?".08em":".05em",position:"relative",transition:"color .25s ease"}}>
               {n.l}
               {on&&<span style={{position:"absolute",bottom:0,left:"50%",transform:"translateX(-50%)",width:14,height:1,borderRadius:1,background:"rgba(0,212,255,0.65)",boxShadow:"0 0 8px rgba(0,212,255,0.45)",display:"block"}}/>}
             </button>
@@ -146,7 +183,7 @@ function Nav({active,go}){
 ═══════════════════════════════════════════════ */
 function PageHero({title,sub}){
   return(
-    <div style={{minHeight:"92vh",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",textAlign:"center",position:"relative",overflow:"hidden",paddingTop:80}}>
+    <div style={{minHeight:"clamp(60vh,92vh,92vh)",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",textAlign:"center",position:"relative",overflow:"hidden",paddingTop:80}}>
       {/* Background glow specific to page */}
       <div style={{position:"absolute",width:600,height:600,borderRadius:"50%",background:"radial-gradient(circle,rgba(0,212,255,0.055) 0%,transparent 70%)",top:"50%",left:"50%",transform:"translate(-50%,-50%)",pointerEvents:"none",animation:"pageOrb 8s ease-in-out infinite"}}/>
       {/* Decorative thin ring */}
@@ -178,7 +215,7 @@ function Shell({children}){
 
 function Content({children}){
   return(
-    <div style={{maxWidth:1040,margin:"0 auto",padding:"0 40px 100px"}}>
+    <div className="page-content" style={{maxWidth:1040,margin:"0 auto",padding:"0 40px 100px"}}>
       {children}
     </div>
   );
@@ -344,10 +381,9 @@ function FeatureSection({f,go}){
   },[]);
 
   return(
-    <div ref={ref} style={{height:"100vh",display:"flex",alignItems:"center",justifyContent:"center",position:"relative",zIndex:1}}>
-      {/* Subtle section divider */}
+    <div ref={ref} className="feature-grid" style={{minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",position:"relative",zIndex:1,padding:"60px 0"}}>
       <div style={{position:"absolute",top:0,left:"50%",transform:"translateX(-50%)",width:1,height:48,background:"linear-gradient(180deg,transparent,rgba(0,212,255,0.15),transparent)"}}/>
-      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:80,alignItems:"center",width:"100%",maxWidth:880,padding:"0 24px"}}>
+      <div className="feature-grid" style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:80,alignItems:"center",width:"100%",maxWidth:880,padding:"0 24px"}}>
         {/* Left: text */}
         <div style={{overflow:"hidden"}}>
           {vis&&<>
@@ -393,7 +429,7 @@ function Credits(){
       {/* Top glow line */}
       <div style={{height:1,background:"linear-gradient(90deg,transparent 0%,rgba(0,212,255,0.18) 30%,rgba(124,106,255,0.14) 70%,transparent 100%)"}}/>
 
-      <div style={{maxWidth:1040,margin:"0 auto",padding:"52px 40px 40px"}}>
+      <div style={{maxWidth:1040,margin:"0 auto",padding:"clamp(28px,5vw,52px) clamp(18px,4vw,40px) 40px"}}>
         {/* Quote */}
         <div style={{textAlign:"center",marginBottom:44}}>
           <p style={{
@@ -408,7 +444,7 @@ function Credits(){
         </div>
 
         {/* Main row */}
-        <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:24}}>
+        <div className="credits-row" style={{display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:24}}>
           {/* Identity */}
           <div>
             <div style={{fontSize:9,letterSpacing:"3.5px",color:"rgba(0,212,255,0.3)",textTransform:"uppercase",fontWeight:400,marginBottom:6}}>Developed by</div>
@@ -416,7 +452,7 @@ function Credits(){
           </div>
 
           {/* Links */}
-          <div style={{display:"flex",alignItems:"center",gap:8}}>
+          <div className="credits-links" style={{display:"flex",alignItems:"center",gap:8,flexWrap:"wrap"}}>
             {links.map((l,i)=>(
               <a key={i} href={l.href} target={l.href.startsWith("http")?"_blank":"_self"} rel="noopener noreferrer"
                 style={{
@@ -626,7 +662,7 @@ function Calendar(){
       <PageHero title="Calendar" sub="Plan your days with clarity. Every event, every hour — beautifully arranged."/>
       <Content>
         <div style={{display:"flex",justifyContent:"flex-end",marginBottom:20}}>
-          <span style={{fontSize:9,letterSpacing:"3px",color:"rgba(0,212,255,0.3)",fontWeight:400,textTransform:"uppercase"}}>Click a date to add</span>
+          <span className="calendar-hint" style={{fontSize:9,letterSpacing:"3px",color:"rgba(0,212,255,0.3)",fontWeight:400,textTransform:"uppercase"}}>Click a date to add</span>
         </div>
         <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)"}}>
           {["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].map(d=>(
@@ -961,7 +997,7 @@ function Wellness(){
           <div style={{display:"flex",justifyContent:"flex-end",marginBottom:32}}>
             <button onClick={()=>{setZenMode(true);setBActive(true)}} style={{background:"rgba(124,106,255,0.07)",border:"1px solid rgba(124,106,255,0.22)",borderRadius:100,padding:"10px 20px",color:"rgba(124,106,255,.78)",fontSize:12,cursor:"pointer",fontWeight:300,letterSpacing:".04em",transition:"all .2s"}} onMouseEnter={e=>e.currentTarget.style.background="rgba(124,106,255,0.13)"} onMouseLeave={e=>e.currentTarget.style.background="rgba(124,106,255,0.07)"}>Zen Mode</button>
           </div>
-          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:52,alignItems:"start"}}>
+          <div className="wellness-grid" style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:52,alignItems:"start"}}>
             {/* Hydration */}
             <div className="fu">
               <span className="lbl">Hydration</span>
@@ -1094,7 +1130,7 @@ function Stats(){
           </div>
         </div>
 
-        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:44,marginBottom:44}}>
+        <div className="stats-grid" style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:44,marginBottom:44}}>
           <div className="fu" style={{animationDelay:"70ms"}}>
             <span className="lbl">Deep Work Heatmap · 7 Days</span>
             <div style={{display:"grid",gridTemplateColumns:"repeat(24,1fr)",gap:1.5,marginTop:8}}>
